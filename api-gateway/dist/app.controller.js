@@ -55,7 +55,7 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], AppController.prototype, "login", null);
 AppController = __decorate([
-    (0, common_1.Controller)(),
+    (0, common_1.Controller)(''),
     __param(1, (0, common_1.Inject)('FLIGHT_PLANNING_SERVICE')),
     __param(2, (0, common_1.Inject)('AUTH_SERVICE')),
     __metadata("design:paramtypes", [app_service_1.AppService,
