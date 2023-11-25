@@ -6,7 +6,7 @@ import { LoginDto } from './dto/login.dto';
 import { AuthGuard } from './guards/auth/auth.guard';
 import { setContext } from './utils/set-context.utils';
 
-@Controller()
+@Controller('')
 export class AppController implements OnModuleInit {
   constructor(
     private readonly appService: AppService,
