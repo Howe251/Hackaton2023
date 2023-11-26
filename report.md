@@ -167,7 +167,7 @@
 Тестирование проивзодится после поднятие докера и всех серверов(см. файл README.md)
 
 ### Нормальная работа
-1. Получение токена
+1. Получение токена производится через авторизацию. /**auth/login** После авторизации сервер выдаёт accessToken, который используется для авторизации сервисов.
 
 ```
 curl --location 'http://127.0.0.1:3000/auth/login' \
@@ -177,10 +177,68 @@ curl --location 'http://127.0.0.1:3000/auth/login' \
     "password": "12345678"
 }'
 ```
+Пример успешного ответа:
+```
+{
+    "success": true,
+    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImN5YmVyQHNlYy5jb20iLCJpZCI6MSwibmFtZSI6IkFub255bW91cyIsImlhdCI6MTcwMTAxODY2MiwiZXhwIjoxNzAxMDIyMjYyfQ.ZDKB3ZyDL0SzHJ-5fLdEj7g8yVOvRxw8Csp8FXHR6LM"
+}
+```
 
-2. Отправить REST запрос /select-dron
+2. Отправить REST запрос **/select-drone**
+с accessToken, полученным на предыдущем этапе
+```
+curl --location 'http://localhost:3000/api/v1/select-drone' \
+--header 'access-token: TOKEN \
+--header 'Content-Type: application/json' \
+--data '{
+    "userId": 1,
+    "droneId": 1
+}'
+```
+Пример успешного ответа:
 
-Далее для тестрования отправк сообщений в кафке приведем кейс отправки сообщеня:
+```
+{
+    "success": true,
+    "message": "Drone "Drone 1" selected",
+    "data": {
+        "permission": "00ASybeqoDiEhxiazmlpfr6xx1"
+    }
+}
+```
+
+3. Для создания задания на мониторинг из API можно воспользоваться запросом **/create-task**. При этом наличие valid_task в поле description обязательно. Без его наличия остальная валидация производиться не будет.
+
+```
+curl --location 'http://localhost:3000/api/v1/create-task' \
+--header 'access-token: TOKEN \
+--header 'Content-Type: application/json' \
+--data '{
+    "droneId": 1,
+    "name": "test task",
+    "description": "valid_task test",
+    "permission": "00ASybeqoDiEhxiazmlpfr6xx1"
+}'
+```
+Пример ответа при успешном создании
+```
+{
+    "success": true,
+    "message": "Task created",
+    "data": {
+        "status": "CREATED",
+        "id": 1,
+        "droneId": 2,
+        "name": "test task",
+        "description": "valid_task test",
+        "createdAt": 1701021022053,
+        "permission": "KLPztDWoem8FLjscdalpfrzo1r"
+    }
+}
+```
+
+Далее для тестрования отправки сообщений в кафке приведем кейс отправки сообщеня:
 
 1. Перейти на http://localhost:8080/
 2. Выбрать вкладку topics
@@ -203,3 +261,14 @@ curl --location 'http://127.0.0.1:3000/auth/login' \
 ![ARCH](./images/test.png "Архитектура")
 
 7. Проверить в терминале, что логика отработала.
+![ARCH](./images/test2.png "Тест отправки полётного плана на дрон")
+
+### Возможные ошибки при выполнении тестирования
+
+1. Unathorized в logger service
+
+![ARCH](./images/error1.png "")
+
+Решение: Пересоздание токена авторизации
+
+2. Если при запросе создания задания на мониторинг в поле description не содержится "valid_task" будет выдана ошибка и дальнейшая вылидация не пройдет
