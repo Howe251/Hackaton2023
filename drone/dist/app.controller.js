@@ -33,7 +33,6 @@ let AppController = class AppController {
         this.atm.subscribeToResponseOf('drone_command_alarm');
     }
     setplan(message) {
-        console.log(message);
         return this.appService.setGetTaskHandler(message);
     }
     executeCom(message) {

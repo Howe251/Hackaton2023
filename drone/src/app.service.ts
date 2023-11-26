@@ -23,7 +23,7 @@ export class AppService {
     this.tasklist.push(data);
     // console.log(this.tasklist);
     // console.log('данные записаны');
-    console.log({"id":data.flightplan, "accessToken":data.accessToken});
+    // console.log({"id":data.flightplan, "accessToken":data.accessToken});
     
     this.sendPlanBVS(data);
     console.log('данные Отправлены в ОрВД');
@@ -31,8 +31,8 @@ export class AppService {
   }
 
   public async sendPlanBVS (data: Flightplan) {
-    console.log("HERE");
-    console.log(this.tasklist[this.tasklist.length-1]);
+    // console.log("HERE");
+    // console.log(this.tasklist[this.tasklist.length-1]);
     let task = this.tasklist[this.tasklist.length-1];
     
     const vl = await firstValueFrom(
@@ -76,7 +76,7 @@ export class AppService {
     t.position = this.getGPSPos();
     t.satCount = 12;
     t.speed = 10;
-    this.flightPlanningService.emit('', t); //ДОБАВИТЬ ПУТЬ
+    this.flightPlanningService.emit('fp_send_telemetry', t); //ДОБАВИТЬ ПУТЬ
   }
 
   sendEndTask() {

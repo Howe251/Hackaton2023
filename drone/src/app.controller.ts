@@ -29,8 +29,6 @@ public onModuleInit(): void {
 
   @MessagePattern('drone_set_flight_plan')
   public setplan(@Payload() message: Flightplan) {
-    console.log(message);
-
     return this.appService.setGetTaskHandler(message);
   }
 

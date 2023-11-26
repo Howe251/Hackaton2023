@@ -27,14 +27,11 @@ let AppService = class AppService {
     setGetTaskHandler(data) {
         console.log(data);
         this.tasklist.push(data);
-        console.log({ "id": data.flightplan, "accessToken": data.accessToken });
         this.sendPlanBVS(data);
         console.log('данные Отправлены в ОрВД');
         return { success: this.takeoff };
     }
     async sendPlanBVS(data) {
-        console.log("HERE");
-        console.log(this.tasklist[this.tasklist.length - 1]);
         let task = this.tasklist[this.tasklist.length - 1];
         const vl = await (0, rxjs_1.firstValueFrom)(this.atm.send("atm_register_bvs", { id: task.id, accessToken: task.accessToken }));
         console.log(vl);
@@ -73,7 +70,7 @@ let AppService = class AppService {
         t.position = this.getGPSPos();
         t.satCount = 12;
         t.speed = 10;
-        this.flightPlanningService.emit('', t);
+        this.flightPlanningService.emit('fp_send_telemetry', t);
     }
     sendEndTask() {
         let task = this.tasklist[this.tasklist.length - 1];
