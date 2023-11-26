@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import { LoggerService } from './services/logger/logger.service';
 
 @Module({
   imports: [
@@ -32,9 +33,22 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
           },
         },
       },
+      {
+        name: 'LOGGER_SERVICE',
+        transport: Transport.KAFKA,
+        options: {
+          client: {
+            clientId: 'logger',
+            brokers: ['localhost:29092'],
+          },
+          consumer: {
+            groupId: 'logger-consumer' + Math.random(),
+          },
+        },
+      },
     ]),
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, LoggerService],
 })
 export class AppModule {}

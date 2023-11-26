@@ -1,3 +1,3 @@
-export class ContextDto {
+export class ContextDto{
   accessToken: string;
 }

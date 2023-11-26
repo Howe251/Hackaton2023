@@ -1,5 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientKafka } from '@nestjs/microservices';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable()
 export class LoggerService {
@@ -10,7 +11,7 @@ export class LoggerService {
   ) {
   }
 
-  public log(topic: string, message: any): void {
-    this.loggerService.emit('logger_log',{ topic, message, producer: this.producer });
+  public log(topic: string, message: any): Promise<void> {
+    return firstValueFrom(this.loggerService.emit('logger_log',{ topic, message, producer: this.producer }));
   }
 }

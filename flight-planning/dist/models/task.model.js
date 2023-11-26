@@ -11,6 +11,7 @@ class TaskModel extends task_dto_1.TaskDto {
         this.name = dto.name;
         this.description = dto.description;
         this.createdAt = Date.now();
+        this.permission = dto.permission;
     }
     start() {
         this.setStatus('IN_PROGRESS');

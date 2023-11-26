@@ -20,23 +20,23 @@ const choose_drone_dto_1 = require("./dto/choose-drone.dto");
 const auth_interceptor_1 = require("./interceptors/auth/auth.interceptor");
 const logger_service_1 = require("./services/logger/logger.service");
 const task_dto_1 = require("./dto/task.dto");
+const get_info_dto_1 = require("./dto/get-info.dto");
 let AppController = class AppController {
-    constructor(authService, atmService, appService, loggerService) {
+    constructor(authService, atmService, droneService, appService, loggerService) {
         this.authService = authService;
         this.atmService = atmService;
+        this.droneService = droneService;
         this.appService = appService;
         this.loggerService = loggerService;
     }
     onModuleInit() {
         this.authService.subscribeToResponseOf('auth_verify_token');
-        this.atmService.subscribeToResponseOf('atm_set_task');
+        this.atmService.subscribeToResponseOf('atm_approve_task');
+        this.droneService.subscribeToResponseOf('drone_set_flight_task');
     }
-    testCommandHandler(message, context) {
-        return this.appService.testCommandHandler(message);
-    }
-    selectDrone(message) {
-        const response = this.appService.selectDrone(message);
-        this.loggerService.log('fp_select_drone', response);
+    async selectDrone(message) {
+        const response = await this.appService.selectDrone(message);
+        await this.loggerService.log('fp_select_drone', response);
         return response;
     }
     async createTask(message) {
@@ -44,21 +44,33 @@ let AppController = class AppController {
         this.loggerService.log('fp_create-task', response);
         return response;
     }
+    async setInfoTelemetry(message) {
+        await this.loggerService.log('fp_set_info_telemetry', 'Получена телеметрия');
+        const isNeedToSendCommand = !!Math.floor(Math.random() * 2);
+        if (isNeedToSendCommand) {
+            await this.loggerService.log('fp_set_info_telemetry', 'Отправляю управляющую команду на основе телеметрии');
+        }
+        return {
+            success: true,
+            message: 'Telemetry received',
+            command: isNeedToSendCommand ? 'Управляющая команда ' + Date.now() : '',
+        };
+    }
+    finishTask(message) {
+        this.appService.finishTask(message);
+    }
+    async getInfo(message) {
+        const response = await this.appService.getInfo(message);
+        this.loggerService.log('fp_get_info', response);
+        return response;
+    }
 };
-__decorate([
-    (0, microservices_1.MessagePattern)('test_command'),
-    __param(0, (0, microservices_1.Payload)()),
-    __param(1, (0, microservices_1.Ctx)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, microservices_1.KafkaContext]),
-    __metadata("design:returntype", void 0)
-], AppController.prototype, "testCommandHandler", null);
 __decorate([
     (0, microservices_1.MessagePattern)('fp_select_drone'),
     __param(0, (0, microservices_1.Payload)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [choose_drone_dto_1.ChooseDroneDto]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:returntype", Promise)
 ], AppController.prototype, "selectDrone", null);
 __decorate([
     (0, microservices_1.MessagePattern)('fp_create-task'),
@@ -67,12 +79,35 @@ __decorate([
     __metadata("design:paramtypes", [task_dto_1.TaskDto]),
     __metadata("design:returntype", Promise)
 ], AppController.prototype, "createTask", null);
+__decorate([
+    (0, microservices_1.MessagePattern)('fp_set_info_telemetry'),
+    __param(0, (0, microservices_1.Payload)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], AppController.prototype, "setInfoTelemetry", null);
+__decorate([
+    (0, microservices_1.MessagePattern)('fp_finish_task'),
+    __param(0, (0, microservices_1.Payload)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [task_dto_1.TaskDto]),
+    __metadata("design:returntype", void 0)
+], AppController.prototype, "finishTask", null);
+__decorate([
+    (0, microservices_1.MessagePattern)('fp_get_info'),
+    __param(0, (0, microservices_1.Payload)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [get_info_dto_1.GetInfoDto]),
+    __metadata("design:returntype", Promise)
+], AppController.prototype, "getInfo", null);
 AppController = __decorate([
     (0, common_1.Controller)(),
     (0, common_1.UseInterceptors)(auth_interceptor_1.AuthInterceptor),
     __param(0, (0, common_1.Inject)('AUTH_SERVICE')),
     __param(1, (0, common_1.Inject)('ATM_SERVICE')),
+    __param(2, (0, common_1.Inject)('DRONE_SERVICE')),
     __metadata("design:paramtypes", [microservices_1.ClientKafka,
+        microservices_1.ClientKafka,
         microservices_1.ClientKafka,
         app_service_1.AppService,
         logger_service_1.LoggerService])

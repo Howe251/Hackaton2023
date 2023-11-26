@@ -59,6 +59,19 @@ AppModule = __decorate([
                         },
                     },
                 },
+                {
+                    name: 'DRONE_SERVICE',
+                    transport: microservices_1.Transport.KAFKA,
+                    options: {
+                        client: {
+                            clientId: 'drone',
+                            brokers: ['localhost:29092'],
+                        },
+                        consumer: {
+                            groupId: 'drone-consumer-consumer' + Math.random(),
+                        },
+                    },
+                },
             ]),
         ],
         controllers: [app_controller_1.AppController],

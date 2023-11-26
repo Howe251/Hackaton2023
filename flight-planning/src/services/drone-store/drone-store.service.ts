@@ -57,6 +57,7 @@ export class DroneStoreService {
     }
 
     const permission = this.getPermission();
+
     this.selectedDrones.push({
       id: drone.id,
       permission,
@@ -89,5 +90,16 @@ export class DroneStoreService {
     permission += Date.now().toString(36);
 
     return permission;
+  }
+
+  public storeDrone(permission: string, droneId: number): void {
+    const isPermissionValid = this.findDroneByPermission(permission);
+
+    if (!isPermissionValid) {
+      throw new BadRequestException('Invalid permission');
+    }
+
+    const index = this.selectedDrones.findIndex((item) => item.permission === permission);
+    this.selectedDrones.splice(index, 1);
   }
 }

@@ -1,12 +1,12 @@
 import { OnModuleInit } from '@nestjs/common';
 import { AppService } from './app.service';
-import { ClientKafka, KafkaContext } from '@nestjs/microservices';
+import { ClientKafka } from '@nestjs/microservices';
 export declare class AppController implements OnModuleInit {
     private readonly authService;
     private readonly appService;
     constructor(authService: ClientKafka, appService: AppService);
     onModuleInit(): void;
-    setTaskHandler(data: any, context: KafkaContext): {
+    approveTask(data: any): Promise<{
         success: boolean;
         message: string;
         error?: undefined;
@@ -14,8 +14,8 @@ export declare class AppController implements OnModuleInit {
         success: boolean;
         error: import("@nestjs/common").BadRequestException;
         message?: undefined;
-    };
-    registerBvsHandler(data: any, context: KafkaContext): {
+    }>;
+    registerBvsHandler(data: any): Promise<{
         success: boolean;
         message: string;
         error?: undefined;
@@ -23,15 +23,17 @@ export declare class AppController implements OnModuleInit {
         success: boolean;
         error: import("@nestjs/common").BadRequestException;
         message?: undefined;
-    };
-    SetInfoGeoHandler(data: any, context: KafkaContext): {
+    }>;
+    SetInfoGeoHandler(data: any): Promise<{
         success: boolean;
         message: string;
+        command?: undefined;
     } | {
         success: boolean;
-        message: import("@nestjs/common").BadRequestException;
-    };
-    setMissionComplete(data: any, context: KafkaContext): {
+        message: string;
+        command: string;
+    }>;
+    setMissionComplete(data: any): {
         success: boolean;
         message: string;
         error?: undefined;

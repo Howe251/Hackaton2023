@@ -1,6 +1,7 @@
 import { TaskModel } from '../../models/task.model';
 import { TaskDto } from '../../dto/task.dto';
 export declare class TaskStoreService {
+    private currentId;
     private readonly tasks;
     addTasks(dto: TaskDto): TaskModel;
     finishTask(id: number): void;

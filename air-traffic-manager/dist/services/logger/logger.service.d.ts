@@ -3,5 +3,5 @@ export declare class LoggerService {
     private readonly loggerService;
     private readonly producer;
     constructor(loggerService: ClientKafka);
-    log(topic: string, message: any): void;
+    log(topic: string, message: any): Promise<void>;
 }

@@ -16,15 +16,19 @@ exports.AuthGuard = void 0;
 const common_1 = require("@nestjs/common");
 const rxjs_1 = require("rxjs");
 const microservices_1 = require("@nestjs/microservices");
+const logger_service_1 = require("../../services/logger/logger.service");
 let AuthGuard = class AuthGuard {
-    constructor(authService) {
+    constructor(authService, logger) {
         this.authService = authService;
+        this.logger = logger;
     }
     canActivate(context) {
         const request = context.switchToHttp().getRequest();
         const accessToken = this.extractTokenFromHeaders(request);
         if (!accessToken) {
-            throw new common_1.UnauthorizedException();
+            const exception = new common_1.UnauthorizedException();
+            this.logger.log('auth_guard', exception);
+            throw exception;
         }
         return this.authService.send('auth_verify_token', { accessToken })
             .pipe((0, rxjs_1.map)((response) => response.success));
@@ -37,7 +41,8 @@ let AuthGuard = class AuthGuard {
 AuthGuard = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, common_1.Inject)('AUTH_SERVICE')),
-    __metadata("design:paramtypes", [microservices_1.ClientKafka])
+    __metadata("design:paramtypes", [microservices_1.ClientKafka,
+        logger_service_1.LoggerService])
 ], AuthGuard);
 exports.AuthGuard = AuthGuard;
 //# sourceMappingURL=auth.guard.js.map

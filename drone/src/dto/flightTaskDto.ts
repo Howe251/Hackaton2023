@@ -1,5 +1,6 @@
 import { ContextDto } from "./context.dto";
-export declare class Flightplan extends ContextDto {
+
+export class FlightTaskDto extends ContextDto {
     id: string;
     name: string;
     description: string;

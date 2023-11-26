@@ -1,33 +1,21 @@
+import { OnModuleInit } from '@nestjs/common';
 import { AppService } from './app.service';
 import { ClientKafka } from '@nestjs/microservices';
-import { Flightplan } from './dto/flightplan.dto';
-import { Command } from './dto/command.dto';
-export declare class AppController {
-    private readonly appService;
+import { FlightTaskDto } from './dto/flightTaskDto';
+export declare class AppController implements OnModuleInit {
     private readonly flightPlanningService;
     private readonly authService;
     private readonly atm;
-    constructor(appService: AppService, flightPlanningService: ClientKafka, authService: ClientKafka, atm: ClientKafka);
+    private readonly appService;
+    constructor(flightPlanningService: ClientKafka, authService: ClientKafka, atm: ClientKafka, appService: AppService);
     onModuleInit(): void;
-    setplan(message: Flightplan): {
-        success: boolean;
-    };
-    executeCom(message: Command): {
-        success: true;
-        message: string;
-        error?: undefined;
-    } | {
-        success: boolean;
-        error: string;
-        message?: undefined;
-    };
-    executeAlarmCom(message: Command): {
+    setFlightTask(message: FlightTaskDto): Promise<{
         success: boolean;
         message: string;
         error?: undefined;
     } | {
         success: boolean;
-        error: string;
+        error: any;
         message?: undefined;
-    };
+    }>;
 }

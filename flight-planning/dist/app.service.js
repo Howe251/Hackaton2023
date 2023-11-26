@@ -18,18 +18,21 @@ const drone_store_service_1 = require("./services/drone-store/drone-store.servic
 const task_store_service_1 = require("./services/task-store/task-store.service");
 const microservices_1 = require("@nestjs/microservices");
 const rxjs_1 = require("rxjs");
+const logger_service_1 = require("./services/logger/logger.service");
 let AppService = class AppService {
-    constructor(atmService, droneStoreService, taskStoreService) {
+    constructor(atmService, droneService, droneStoreService, taskStoreService, loggerService) {
         this.atmService = atmService;
+        this.droneService = droneService;
         this.droneStoreService = droneStoreService;
         this.taskStoreService = taskStoreService;
+        this.loggerService = loggerService;
     }
-    testCommandHandler(data) {
-        return { success: true, message: `${data.command} received` };
-    }
-    selectDrone(data) {
+    async selectDrone(data) {
         try {
+            await this.loggerService.log('fp_select_drone', 'Получен запрос на выбор Дрона');
+            await this.loggerService.log('fp_select_drone', 'Проверка совместимости оператора и дрона');
             const { message, permission } = this.droneStoreService.selectDrone(data.droneId, data.userId);
+            await this.loggerService.log('fp_select_drone', 'Разрешение получено, дрон выбран');
             return {
                 success: true,
                 message: message,
@@ -37,6 +40,7 @@ let AppService = class AppService {
             };
         }
         catch (error) {
+            await this.loggerService.log('fp_select_drone', 'Разрешение не получено, дрон не выбран');
             return {
                 success: false,
                 error,
@@ -45,17 +49,23 @@ let AppService = class AppService {
     }
     async createTask(data) {
         try {
+            await this.loggerService.log('fp_create-task', `Получено новое задание для дрона ${data.droneId}`);
+            await this.loggerService.log('fp_create-task', 'Проверка разрешения');
             this.droneStoreService.verifyPermission(data.permission);
+            await this.loggerService.log('fp_create-task', 'Разрешение валидно');
             const task = this.taskStoreService.addTasks(data);
-            console.log(task);
-            const atmResponse = await (0, rxjs_1.firstValueFrom)(this.atmService.send('atm_set_task', {
-                id: task.id,
-                accessToken: data.accessToken,
-            }));
-            console.log(atmResponse);
-            if (!atmResponse.success) {
-                throw atmResponse.error;
+            await this.loggerService.log('fp_create-task', 'Отправка задачи в АТМ для првоерки полетного задания');
+            const taskApproval = await (0, rxjs_1.firstValueFrom)(this.atmService.send('atm_approve_task', Object.assign(Object.assign({}, data), task)));
+            if (!taskApproval.success) {
+                throw taskApproval.error;
             }
+            await this.loggerService.log('fp_create-task', 'Полетное задание согласовано с АТМ');
+            await this.loggerService.log('fp_create-task', 'Полетное задание отправлено дрону');
+            const droneResponse = await (0, rxjs_1.firstValueFrom)(this.droneService.send('drone_set_flight_task', Object.assign(Object.assign({}, data), task)));
+            if (!droneResponse.success) {
+                throw droneResponse.error;
+            }
+            await this.loggerService.log('fp_create-task', 'Полетное задание принято дроном');
             return {
                 success: true,
                 message: 'Task created',
@@ -69,13 +79,27 @@ let AppService = class AppService {
             };
         }
     }
+    finishTask(data) {
+        this.droneStoreService.storeDrone(data.permission, data.droneId);
+        this.taskStoreService.finishTask(data['id']);
+        this.loggerService.log('fp_finish_task', `Дрон ${data.droneId} завершил задание ${data['id']} и вернулся на базу`);
+    }
+    async getInfo(data) {
+        try {
+        }
+        catch (error) {
+        }
+    }
 };
 AppService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, common_1.Inject)('ATM_SERVICE')),
+    __param(1, (0, common_1.Inject)('DRONE_SERVICE')),
     __metadata("design:paramtypes", [microservices_1.ClientKafka,
+        microservices_1.ClientKafka,
         drone_store_service_1.DroneStoreService,
-        task_store_service_1.TaskStoreService])
+        task_store_service_1.TaskStoreService,
+        logger_service_1.LoggerService])
 ], AppService);
 exports.AppService = AppService;
 //# sourceMappingURL=app.service.js.map

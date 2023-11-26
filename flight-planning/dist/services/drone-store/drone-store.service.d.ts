@@ -9,4 +9,5 @@ export declare class DroneStoreService {
     };
     verifyPermission(permission: string): void;
     private getPermission;
+    storeDrone(permission: string, droneId: number): void;
 }

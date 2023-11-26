@@ -84,6 +84,14 @@ let DroneStoreService = class DroneStoreService {
         permission += Date.now().toString(36);
         return permission;
     }
+    storeDrone(permission, droneId) {
+        const isPermissionValid = this.findDroneByPermission(permission);
+        if (!isPermissionValid) {
+            throw new common_1.BadRequestException('Invalid permission');
+        }
+        const index = this.selectedDrones.findIndex((item) => item.permission === permission);
+        this.selectedDrones.splice(index, 1);
+    }
 };
 DroneStoreService = __decorate([
     (0, common_1.Injectable)()

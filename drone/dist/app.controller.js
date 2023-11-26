@@ -16,64 +16,42 @@ exports.AppController = void 0;
 const common_1 = require("@nestjs/common");
 const app_service_1 = require("./app.service");
 const microservices_1 = require("@nestjs/microservices");
-const flightplan_dto_1 = require("./dto/flightplan.dto");
-const command_dto_1 = require("./dto/command.dto");
+const flightTaskDto_1 = require("./dto/flightTaskDto");
 const auth_interceptor_1 = require("./interceptor/auth/auth.interceptor");
 let AppController = class AppController {
-    constructor(appService, flightPlanningService, authService, atm) {
-        this.appService = appService;
+    constructor(flightPlanningService, authService, atm, appService) {
         this.flightPlanningService = flightPlanningService;
         this.authService = authService;
         this.atm = atm;
+        this.appService = appService;
     }
     onModuleInit() {
         this.authService.subscribeToResponseOf('auth_verify_token');
         this.atm.subscribeToResponseOf('atm_register_bvs');
-        this.flightPlanningService.subscribeToResponseOf('dronecom');
-        this.atm.subscribeToResponseOf('drone_command_alarm');
+        this.atm.subscribeToResponseOf('atm_set_info_geo');
+        this.flightPlanningService.subscribeToResponseOf('fp_set_info_telemetry');
     }
-    setplan(message) {
-        console.log(message);
-        return this.appService.setGetTaskHandler(message);
-    }
-    executeCom(message) {
-        return this.appService.executeCommand(message);
-    }
-    executeAlarmCom(message) {
-        return this.appService.executeAlarmCommand(message);
+    async setFlightTask(message) {
+        return await this.appService.setFlightTask(message);
     }
 };
 exports.AppController = AppController;
 __decorate([
-    (0, microservices_1.MessagePattern)('drone_set_flight_plan'),
+    (0, microservices_1.MessagePattern)('drone_set_flight_task'),
     __param(0, (0, microservices_1.Payload)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [flightplan_dto_1.Flightplan]),
-    __metadata("design:returntype", void 0)
-], AppController.prototype, "setplan", null);
-__decorate([
-    (0, microservices_1.MessagePattern)('drone_command'),
-    __param(0, (0, microservices_1.Payload)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [command_dto_1.Command]),
-    __metadata("design:returntype", void 0)
-], AppController.prototype, "executeCom", null);
-__decorate([
-    (0, microservices_1.MessagePattern)('drone_alarm_command'),
-    __param(0, (0, microservices_1.Payload)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [command_dto_1.Command]),
-    __metadata("design:returntype", void 0)
-], AppController.prototype, "executeAlarmCom", null);
+    __metadata("design:paramtypes", [flightTaskDto_1.FlightTaskDto]),
+    __metadata("design:returntype", Promise)
+], AppController.prototype, "setFlightTask", null);
 exports.AppController = AppController = __decorate([
     (0, common_1.Controller)(),
     (0, common_1.UseInterceptors)(auth_interceptor_1.AuthInterceptor),
-    __param(1, (0, common_1.Inject)('FLIGHT_PLANNING_SERVICE')),
-    __param(2, (0, common_1.Inject)('AUTH_SERVICE')),
-    __param(3, (0, common_1.Inject)('AIR_TRAFFIC_MANAGER')),
-    __metadata("design:paramtypes", [app_service_1.AppService,
+    __param(0, (0, common_1.Inject)('FLIGHT_PLANNING_SERVICE')),
+    __param(1, (0, common_1.Inject)('AUTH_SERVICE')),
+    __param(2, (0, common_1.Inject)('AIR_TRAFFIC_MANAGER_SERVICE')),
+    __metadata("design:paramtypes", [microservices_1.ClientKafka,
         microservices_1.ClientKafka,
         microservices_1.ClientKafka,
-        microservices_1.ClientKafka])
+        app_service_1.AppService])
 ], AppController);
 //# sourceMappingURL=app.controller.js.map

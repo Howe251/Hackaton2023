@@ -48,6 +48,19 @@ import { TaskStoreService } from './services/task-store/task-store.service';
           },
         },
       },
+      {
+        name: 'DRONE_SERVICE',
+        transport: Transport.KAFKA,
+        options: {
+          client: {
+            clientId: 'drone',
+            brokers: ['localhost:29092'],
+          },
+          consumer: {
+            groupId: 'drone-consumer-consumer' + Math.random(),
+          },
+        },
+      },
     ]),
   ],
   controllers: [AppController],

@@ -6,12 +6,19 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TaskService = void 0;
+exports.GpsService = void 0;
 const common_1 = require("@nestjs/common");
-let TaskService = class TaskService {
+const GPS_dto_1 = require("../../dto/GPS.dto");
+let GpsService = class GpsService {
+    getGPSPos() {
+        const gps = new GPS_dto_1.GPSDto;
+        gps.x = Math.floor(Math.random() * 10);
+        gps.y = Math.floor(Math.random() * 10);
+        return gps;
+    }
 };
-TaskService = __decorate([
+exports.GpsService = GpsService;
+exports.GpsService = GpsService = __decorate([
     (0, common_1.Injectable)()
-], TaskService);
-exports.TaskService = TaskService;
-//# sourceMappingURL=task.service.js.map
+], GpsService);
+//# sourceMappingURL=gps.service.js.map

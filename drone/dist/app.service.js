@@ -16,84 +16,90 @@ exports.AppService = void 0;
 const common_1 = require("@nestjs/common");
 const microservices_1 = require("@nestjs/microservices");
 const telemetry_dto_1 = require("./dto/telemetry.dto");
-const GPS_dto_1 = require("./dto/GPS.dto");
 const rxjs_1 = require("rxjs");
+const gps_service_1 = require("./services/gps/gps.service");
+const drone_model_1 = require("./models/drone.model");
+const logger_service_1 = require("./services/logger/logger.service");
+const drone_command_model_1 = require("./models/drone-command.model");
 let AppService = class AppService {
-    constructor(atm, flightPlanningService) {
-        this.atm = atm;
+    constructor(ATMService, flightPlanningService, gpsService, loggerService) {
+        this.ATMService = ATMService;
         this.flightPlanningService = flightPlanningService;
-        this.tasklist = [];
+        this.gpsService = gpsService;
+        this.loggerService = loggerService;
     }
-    setGetTaskHandler(data) {
-        console.log(data);
-        this.tasklist.push(data);
-        console.log({ "id": data.flightplan, "accessToken": data.accessToken });
-        this.sendPlanBVS(data);
-        console.log('данные Отправлены в ОрВД');
-        return { "success": this.takeoff };
-    }
-    async sendPlanBVS(data) {
-        console.log("HERE");
-        console.log(this.tasklist[this.tasklist.length - 1]);
-        let task = this.tasklist[this.tasklist.length - 1];
-        const vl = await (0, rxjs_1.firstValueFrom)(this.atm.send("atm_register_bvs", { id: task.id, accessToken: task.accessToken }));
-        console.log(vl);
-        this.takeoff = vl.success;
-        this.takeoff ? console.log("Вылет разрешён") : console.log("Вылет запрещен");
-    }
-    executeCommand(data) {
-        console.log(data);
-        if (this.takeoff) {
-            console.log("Получена команда");
+    async setFlightTask(task) {
+        try {
+            await this.loggerService.log('drone_set_flight_task', 'Получено новое задание');
+            await this.loggerService.log('drone_set_flight_task', 'Регистрация БВС в АТМ');
+            const registration = await this.registerBVSInATM(task);
+            if (!registration.success) {
+                throw registration.error;
+            }
+            await this.loggerService.log('drone_set_flight_task', 'Получено подтверждение вылета');
+            await this.loggerService.log('drone_set_flight_task', 'Запуск полета');
+            this.processTask(task);
+            return {
+                success: true,
+                message: "Flight approved. Starting flight",
+            };
         }
-        if (this.takeoff) {
-            return { success: this.takeoff, message: "Команда выполнена" };
-        }
-        else {
-            return { success: this.takeoff, error: "Полёт был запрещен ОРВД. Данные недоступны" };
+        catch (error) {
+            return { success: false, error };
         }
     }
-    executeAlarmCommand(data) {
-        if (this.takeoff) {
-            console.log("Получена экстренная команда");
-            console.log(data.command);
-            return { success: true, message: "Команда выполнена" };
+    async registerBVSInATM(task) {
+        return (0, rxjs_1.firstValueFrom)(this.ATMService.send("atm_register_bvs", task));
+    }
+    processTask(task) {
+        const drone = new drone_model_1.DroneModel(this.loggerService);
+        (0, rxjs_1.interval)(1000)
+            .pipe((0, rxjs_1.take)(5))
+            .subscribe(async (count) => {
+            await this.loggerService.log('drone_set_flight_task', `Отправляю гео и телеметрию`);
+            await this.sendGeo(drone, task.accessToken);
+            await this.sendTelemetry(drone, task.accessToken);
+            if (count === 4) {
+                setTimeout(async () => {
+                    await this.loggerService.log('drone_set_flight_task', `Завершаю полет`);
+                    this.sendFinishTask(task, task.accessToken);
+                }, 2000);
+            }
+        });
+    }
+    async sendGeo(drone, accessToken) {
+        const geo = this.gpsService.getGPSPos();
+        const status = await (0, rxjs_1.firstValueFrom)(this.ATMService.send('atm_set_info_geo', Object.assign(Object.assign({}, geo), { accessToken })));
+        if (status.command) {
+            await this.loggerService.log('drone_set_flight_task', `Получена экстренная команда "${status.command}"`);
+            const emergencyCommand = new drone_command_model_1.DroneCommandModel(1, status.command);
+            drone.executeCommand(emergencyCommand);
         }
-        console.log({ success: false, error: "Полёт был запрещен. Команда недоступна" });
-        return { success: false, error: "Полёт был запрещен. Команда недоступна" };
     }
-    sendGPS() {
-        const g = this.getGPSPos();
-        this.atm.emit('atm_set_info_geo', g);
+    async sendTelemetry(drone, accessToken) {
+        const telemetry = new telemetry_dto_1.TelemetryDto();
+        telemetry.speed = Math.random() * 100;
+        telemetry.distanceToHome = Math.random() * 1000;
+        telemetry.position = this.gpsService.getGPSPos();
+        const status = await (0, rxjs_1.firstValueFrom)(this.flightPlanningService.send('fp_set_info_telemetry', Object.assign(Object.assign({}, telemetry), { accessToken })));
+        if (status.command) {
+            await this.loggerService.log('drone_set_flight_task', `Получена управляющая команда "${status.command}"`);
+            const regularCommand = new drone_command_model_1.DroneCommandModel(0, status.command);
+            drone.executeCommand(regularCommand);
+        }
     }
-    sendTelemetry() {
-        const t = new telemetry_dto_1.TelemetryDto;
-        t.compasDeg = 100;
-        t.distanceToHome = 20;
-        t.position = this.getGPSPos();
-        t.satCount = 12;
-        t.speed = 10;
-        this.flightPlanningService.emit('', t);
-    }
-    sendEndTask() {
-        let task = this.tasklist[this.tasklist.length - 1];
-        this.takeoff = false;
-        this.tasklist.pop();
-        this.flightPlanningService.emit('', { 'TaskEnd': true, "accessToken": task.accessToken });
-    }
-    getGPSPos() {
-        const g = new GPS_dto_1.GPSDto;
-        g.x = Math.random() * 10;
-        g.y = Math.random() * 10;
-        return g;
+    sendFinishTask(task, accessToken) {
+        this.flightPlanningService.emit('fp_finish_task', Object.assign(Object.assign({}, task), { accessToken }));
     }
 };
 exports.AppService = AppService;
 exports.AppService = AppService = __decorate([
     (0, common_1.Injectable)(),
-    __param(0, (0, common_1.Inject)('AIR_TRAFFIC_MANAGER')),
+    __param(0, (0, common_1.Inject)('AIR_TRAFFIC_MANAGER_SERVICE')),
     __param(1, (0, common_1.Inject)('FLIGHT_PLANNING_SERVICE')),
     __metadata("design:paramtypes", [microservices_1.ClientKafka,
-        microservices_1.ClientKafka])
+        microservices_1.ClientKafka,
+        gps_service_1.GpsService,
+        logger_service_1.LoggerService])
 ], AppService);
 //# sourceMappingURL=app.service.js.map

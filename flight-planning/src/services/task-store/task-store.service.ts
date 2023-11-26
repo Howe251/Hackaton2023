@@ -4,11 +4,16 @@ import { TaskDto } from '../../dto/task.dto';
 
 @Injectable()
 export class TaskStoreService {
+  private currentId = 1;
   private readonly tasks: TaskModel[] = [];
 
   public addTasks(dto: TaskDto): TaskModel {
     if (!this.validate(dto)) {
       throw new BadRequestException('Invalid task');
+    }
+
+    if (this.tasks.some((task) => task.permission === dto.permission)) {
+      throw new BadRequestException('This task already exists');
     }
 
     const task = this.createTask(dto);
@@ -19,10 +24,7 @@ export class TaskStoreService {
 
   public finishTask(id: number): void {
     const task = this.getTaskById(id);
-
-    if (!task) {
-      throw new BadRequestException('Task not found');
-    }
+    this.tasks.splice(this.tasks.indexOf(task), 1);
   }
 
   public getTask(id: number): TaskModel {
@@ -45,7 +47,7 @@ export class TaskStoreService {
 
   private createTask(dto: TaskDto): TaskModel {
     return new TaskModel(
-      1, // TODO: generate id
+      this.currentId++,
       dto
     );
   }

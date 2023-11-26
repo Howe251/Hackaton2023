@@ -12,6 +12,7 @@ const app_controller_1 = require("./app.controller");
 const app_service_1 = require("./app.service");
 const microservices_1 = require("@nestjs/microservices");
 const logger_service_1 = require("./services/logger/logger.service");
+const gps_service_1 = require("./services/gps/gps.service");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -33,7 +34,7 @@ exports.AppModule = AppModule = __decorate([
                     },
                 },
                 {
-                    name: 'AIR_TRAFFIC_MANAGER',
+                    name: 'AIR_TRAFFIC_MANAGER_SERVICE',
                     transport: microservices_1.Transport.KAFKA,
                     options: {
                         client: {
@@ -74,7 +75,7 @@ exports.AppModule = AppModule = __decorate([
             ]),
         ],
         controllers: [app_controller_1.AppController],
-        providers: [app_service_1.AppService, logger_service_1.LoggerService],
+        providers: [app_service_1.AppService, logger_service_1.LoggerService, gps_service_1.GpsService],
     })
 ], AppModule);
 //# sourceMappingURL=app.module.js.map

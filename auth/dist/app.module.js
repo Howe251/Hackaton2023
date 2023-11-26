@@ -12,6 +12,8 @@ const app_controller_1 = require("./app.controller");
 const app_service_1 = require("./app.service");
 const jwt_1 = require("@nestjs/jwt");
 const constants_1 = require("./constants");
+const microservices_1 = require("@nestjs/microservices");
+const logger_service_1 = require("./services/logger/logger.service");
 let AppModule = class AppModule {
 };
 AppModule = __decorate([
@@ -20,11 +22,26 @@ AppModule = __decorate([
             jwt_1.JwtModule.register({
                 global: true,
                 secret: constants_1.jwtConstants.secret,
-                signOptions: { expiresIn: '60m' },
+                signOptions: { expiresIn: '24h' },
             }),
+            microservices_1.ClientsModule.register([
+                {
+                    name: 'LOGGER_SERVICE',
+                    transport: microservices_1.Transport.KAFKA,
+                    options: {
+                        client: {
+                            clientId: 'logger',
+                            brokers: ['localhost:29092'],
+                        },
+                        consumer: {
+                            groupId: 'logger-consumer' + Math.random(),
+                        },
+                    },
+                },
+            ])
         ],
         controllers: [app_controller_1.AppController],
-        providers: [app_service_1.AppService],
+        providers: [app_service_1.AppService, logger_service_1.LoggerService],
     })
 ], AppModule);
 exports.AppModule = AppModule;

@@ -4,15 +4,7 @@ import { VerifyTokenDto } from './dto/verify-token.dto';
 export declare class AppController {
     private readonly appService;
     constructor(appService: AppService);
-    login(message: LoginDto): {
-        success: boolean;
-        accessToken: string;
-        error?: undefined;
-    } | {
-        success: boolean;
-        error: import("@nestjs/common").UnauthorizedException;
-        accessToken?: undefined;
-    };
+    login(message: LoginDto): any;
     verifyToken(message: VerifyTokenDto): {
         success: boolean;
         user: any;

@@ -3,7 +3,6 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { LoggerService } from './services/logger/logger.service';
-import { AuthInterceptor } from './interceptor/auth/auth.interceptor';
 
 @Module({
   imports: [

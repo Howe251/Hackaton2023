@@ -11,11 +11,15 @@ const common_1 = require("@nestjs/common");
 const task_model_1 = require("../../models/task.model");
 let TaskStoreService = class TaskStoreService {
     constructor() {
+        this.currentId = 1;
         this.tasks = [];
     }
     addTasks(dto) {
         if (!this.validate(dto)) {
             throw new common_1.BadRequestException('Invalid task');
+        }
+        if (this.tasks.some((task) => task.permission === dto.permission)) {
+            throw new common_1.BadRequestException('This task already exists');
         }
         const task = this.createTask(dto);
         this.tasks.push(task);
@@ -23,9 +27,7 @@ let TaskStoreService = class TaskStoreService {
     }
     finishTask(id) {
         const task = this.getTaskById(id);
-        if (!task) {
-            throw new common_1.BadRequestException('Task not found');
-        }
+        this.tasks.splice(this.tasks.indexOf(task), 1);
     }
     getTask(id) {
         const task = this.getTaskById(id);
@@ -41,7 +43,7 @@ let TaskStoreService = class TaskStoreService {
         return false;
     }
     createTask(dto) {
-        return new task_model_1.TaskModel(1, dto);
+        return new task_model_1.TaskModel(this.currentId++, dto);
     }
     getTaskById(id) {
         return this.tasks.find(task => task.id === id);

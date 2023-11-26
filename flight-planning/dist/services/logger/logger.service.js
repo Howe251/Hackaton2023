@@ -15,13 +15,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.LoggerService = void 0;
 const common_1 = require("@nestjs/common");
 const microservices_1 = require("@nestjs/microservices");
+const rxjs_1 = require("rxjs");
 let LoggerService = class LoggerService {
     constructor(loggerService) {
         this.loggerService = loggerService;
         this.producer = 'FLIGHT_PLANNING';
     }
     log(topic, message) {
-        this.loggerService.emit('logger_log', { topic, message, producer: this.producer });
+        return (0, rxjs_1.firstValueFrom)(this.loggerService.emit('logger_log', { topic, message, producer: this.producer }));
     }
 };
 LoggerService = __decorate([

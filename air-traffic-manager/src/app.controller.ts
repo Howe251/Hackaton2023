@@ -26,23 +26,23 @@ export class AppController implements OnModuleInit {
     this.authService.subscribeToResponseOf('auth_verify_token');
   }
 
-  @MessagePattern('atm_set_task')
-  setTaskHandler(@Payload() data: any, @Ctx() context: KafkaContext) {
-    return this.appService.setTaskHandler(data);
+  @MessagePattern('atm_approve_task')
+  approveTask(@Payload() data: any,) {
+    return this.appService.approveTaskHandler(data);
   }
 
   @MessagePattern('atm_register_bvs')
-  registerBvsHandler(@Payload() data: any, @Ctx() context: KafkaContext) {
+  registerBvsHandler(@Payload() data: any) {
     return this.appService.registerBvsHandler(data);
   }
 
   @MessagePattern('atm_set_info_geo')
-  SetInfoGeoHandler(@Payload() data: any, @Ctx() context: KafkaContext) {
+  SetInfoGeoHandler(@Payload() data: any) {
     return this.appService.SetInfoGeoHandler(data);
   }
 
   @MessagePattern('atm_set_mission_complete')
-  setMissionComplete(@Payload() data: any, @Ctx() context: KafkaContext) {
+  setMissionComplete(@Payload() data: any) {
     return this.appService.setMissionComplete(data);
   }
 }

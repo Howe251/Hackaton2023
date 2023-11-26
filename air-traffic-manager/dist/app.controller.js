@@ -25,49 +25,45 @@ let AppController = class AppController {
     onModuleInit() {
         this.authService.subscribeToResponseOf('auth_verify_token');
     }
-    setTaskHandler(data, context) {
-        return this.appService.setTaskHandler(data);
+    approveTask(data) {
+        return this.appService.approveTaskHandler(data);
     }
-    registerBvsHandler(data, context) {
+    registerBvsHandler(data) {
         return this.appService.registerBvsHandler(data);
     }
-    SetInfoGeoHandler(data, context) {
+    SetInfoGeoHandler(data) {
         return this.appService.SetInfoGeoHandler(data);
     }
-    setMissionComplete(data, context) {
+    setMissionComplete(data) {
         return this.appService.setMissionComplete(data);
     }
 };
 __decorate([
-    (0, microservices_1.MessagePattern)('atm_set_task'),
+    (0, microservices_1.MessagePattern)('atm_approve_task'),
     __param(0, (0, microservices_1.Payload)()),
-    __param(1, (0, microservices_1.Ctx)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, microservices_1.KafkaContext]),
+    __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
-], AppController.prototype, "setTaskHandler", null);
+], AppController.prototype, "approveTask", null);
 __decorate([
     (0, microservices_1.MessagePattern)('atm_register_bvs'),
     __param(0, (0, microservices_1.Payload)()),
-    __param(1, (0, microservices_1.Ctx)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, microservices_1.KafkaContext]),
+    __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], AppController.prototype, "registerBvsHandler", null);
 __decorate([
     (0, microservices_1.MessagePattern)('atm_set_info_geo'),
     __param(0, (0, microservices_1.Payload)()),
-    __param(1, (0, microservices_1.Ctx)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, microservices_1.KafkaContext]),
+    __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], AppController.prototype, "SetInfoGeoHandler", null);
 __decorate([
     (0, microservices_1.MessagePattern)('atm_set_mission_complete'),
     __param(0, (0, microservices_1.Payload)()),
-    __param(1, (0, microservices_1.Ctx)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, microservices_1.KafkaContext]),
+    __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], AppController.prototype, "setMissionComplete", null);
 AppController = __decorate([

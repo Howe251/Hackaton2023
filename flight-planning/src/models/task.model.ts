@@ -15,6 +15,7 @@ export class TaskModel extends TaskDto {
     this.name = dto.name;
     this.description = dto.description;
     this.createdAt = Date.now();
+    this.permission = dto.permission;
   }
 
   public start(): void {

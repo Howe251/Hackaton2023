@@ -3,6 +3,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { LoggerService } from './services/logger/logger.service';
+import { GpsService } from './services/gps/gps.service';
 
 @Module({
   imports: [
@@ -21,7 +22,7 @@ import { LoggerService } from './services/logger/logger.service';
         },
       },
       {
-        name: 'AIR_TRAFFIC_MANAGER',
+        name: 'AIR_TRAFFIC_MANAGER_SERVICE',
         transport: Transport.KAFKA,
         options: {
           client: {
@@ -62,6 +63,6 @@ import { LoggerService } from './services/logger/logger.service';
     ]),
   ],
   controllers: [AppController],
-  providers: [AppService, LoggerService],
+  providers: [AppService, LoggerService, GpsService],
 })
 export class AppModule {}

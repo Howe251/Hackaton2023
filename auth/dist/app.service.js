@@ -13,23 +13,30 @@ exports.AppService = void 0;
 const common_1 = require("@nestjs/common");
 const user_db_1 = require("./db/user.db");
 const jwt_1 = require("@nestjs/jwt");
+const logger_service_1 = require("./services/logger/logger.service");
 let AppService = class AppService {
-    constructor(jwtService) {
+    constructor(jwtService, logger) {
         this.jwtService = jwtService;
+        this.logger = logger;
     }
     login({ email, password }) {
         const user = user_db_1.userDb.getUserByEmail(email);
+        let response;
         if (user && user_db_1.userDb.isCorrectPassword(user, password)) {
             const payload = { email: user.email, id: user.id, name: user.name };
-            return {
+            response = {
                 success: true,
                 accessToken: this.jwtService.sign(payload),
             };
+            this.logger.log('auth_login', response);
+            return response;
         }
-        return {
+        response = {
             success: false,
             error: new common_1.UnauthorizedException(),
         };
+        this.logger.log('auth_login', response);
+        return response;
     }
     verifyToken({ accessToken }) {
         try {
@@ -49,7 +56,8 @@ let AppService = class AppService {
 };
 AppService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [jwt_1.JwtService])
+    __metadata("design:paramtypes", [jwt_1.JwtService,
+        logger_service_1.LoggerService])
 ], AppService);
 exports.AppService = AppService;
 //# sourceMappingURL=app.service.js.map
