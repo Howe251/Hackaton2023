@@ -20,7 +20,7 @@ public onModuleInit(): void {
   this.authService.subscribeToResponseOf('auth_verify_token');
   this.atm.subscribeToResponseOf('atm_register_bvs');
   this.flightPlanningService.subscribeToResponseOf('dronecom');
-  this.atm.subscribeToResponseOf('drone_command_alarm')
+  this.atm.subscribeToResponseOf('drone_command_alarm');
   // this.flightPlanningService.subscribeToResponseOf('setTask');
   
   // this.orvd.subscribeToResponseOf('drone_command_alarm');
@@ -41,6 +41,6 @@ public onModuleInit(): void {
 
   @MessagePattern('drone_alarm_command')
   public executeAlarmCom(@Payload() message: Command) {
-    return this.appService.executeCommand(message);
+    return this.appService.executeAlarmCommand(message);
   }
 }

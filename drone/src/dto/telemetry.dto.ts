@@ -1,8 +1,9 @@
-import { GPS } from "./GPS.dto";
+import { GPSDto } from "./GPS.dto";
+import { ContextDto } from "./context.dto";
 
-export class Telemetry {
+export class TelemetryDto extends ContextDto {
     speed: number; // тоже поменять на стринг
-    position: GPS; // Класс GPS с координатами. Так можно?
+    position: GPSDto;
     satCount: number;
     compasDeg: number;
     distanceToHome: number;

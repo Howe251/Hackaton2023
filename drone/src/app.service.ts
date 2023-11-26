@@ -1,10 +1,9 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { ClientKafka } from '@nestjs/microservices';
-import { Telemetry } from './dto/telemetry.dto';
-import { GPS } from './dto/GPS.dto';
+import { TelemetryDto } from './dto/telemetry.dto';
+import { GPSDto } from './dto/GPS.dto';
 import { Flightplan } from './dto/flightplan.dto';
 import {firstValueFrom} from 'rxjs';
-import { log } from 'console';
 
 
 @Injectable()
@@ -26,14 +25,18 @@ export class AppService {
     // console.log('данные записаны');
     console.log({"id":data.flightplan, "accessToken":data.accessToken});
     
-    this.sendPlanBVS(data, data.accessToken);
+    this.sendPlanBVS(data);
     console.log('данные Отправлены в ОрВД');
-    return true;
+    return {"success": this.takeoff};
   }
 
-  public async sendPlanBVS (data: Flightplan, accessToken: string) {
+  public async sendPlanBVS (data: Flightplan) {
     console.log("HERE");
-    const vl = await firstValueFrom(this.atm.send("atm_register_bvs", {"id":data.flightplan, "accessToken": accessToken}));
+    console.log(this.tasklist[this.tasklist.length-1]);
+    let task = this.tasklist[this.tasklist.length-1];
+    
+    const vl = await firstValueFrom(
+      this.atm.send("atm_register_bvs", {id: task.id, accessToken: task.accessToken}));
     console.log(vl);
     this.takeoff = vl.success;
     this.takeoff ? console.log("Вылет разрешён") : console.log("Вылет запрещен");
@@ -41,16 +44,24 @@ export class AppService {
 
   executeCommand(data: any) {
     console.log(data);
-    return data;
+    if (this.takeoff) {
+      console.log("Получена команда");
+    }
+    if (this.takeoff) {return {success: this.takeoff, message: "Команда выполнена"}} 
+    else { return {success: this.takeoff, error: "Полёт был запрещен ОРВД. Данные недоступны"}}
+    // return data;
   }
 
   executeAlarmCommand(data: any) {
     if (this.takeoff) {
-      console.log("Экстренная команда");
+      console.log("Получена экстренная команда");
       
-      console.log(data);
-      return data;
+      console.log(data.command);
+
+      return {success: true, message: "Команда выполнена"};
     }
+    console.log({success:false, error: "Полёт был запрещен. Команда недоступна"});
+    return {success:false, error: "Полёт был запрещен. Команда недоступна"};
   }
 
   sendGPS() {
@@ -59,7 +70,7 @@ export class AppService {
   }
 
   sendTelemetry() {
-    const t = new Telemetry;
+    const t = new TelemetryDto;
     t.compasDeg = 100;
     t.distanceToHome = 20;
     t.position = this.getGPSPos();
@@ -69,11 +80,14 @@ export class AppService {
   }
 
   sendEndTask() {
-    this.flightPlanningService.emit('', {'TaskEnd': true, "accessToken": ""}); //Добавить путь и токен
+    let task = this.tasklist[this.tasklist.length-1];
+    this.takeoff = false;
+    this.tasklist.pop();
+    this.flightPlanningService.emit('', {'TaskEnd': true, "accessToken": task.accessToken}); //Добавить путь и токен
   }
 
   getGPSPos() {
-    const g = new GPS;
+    const g = new GPSDto;
     g.x = Math.random()*10;
     g.y = Math.random()*10;
     return g;

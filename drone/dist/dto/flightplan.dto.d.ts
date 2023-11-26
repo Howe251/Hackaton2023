@@ -1,4 +1,6 @@
-import { Aircraft } from "./aircraft.dto";
-export declare class Flightplan extends Aircraft {
-    flightplan: string;
+import { ContextDto } from "./context.dto";
+export declare class Flightplan extends ContextDto {
+    id: string;
+    name: string;
+    description: string;
 }
