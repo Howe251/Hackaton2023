@@ -11,16 +11,40 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppService = void 0;
 const common_1 = require("@nestjs/common");
+const drone_store_service_1 = require("./services/drone-store/drone-store.service");
+const task_store_service_1 = require("./services/task-store/task-store.service");
 let AppService = class AppService {
-    constructor() {
+    constructor(droneStoreService, taskStoreService) {
+        this.droneStoreService = droneStoreService;
+        this.taskStoreService = taskStoreService;
     }
     testCommandHandler(data) {
         return { success: true, message: `${data.command} received` };
     }
+    selectDrone(data) {
+        return this.droneStoreService.selectDrone(data.droneId, data.userId);
+    }
+    createTask(data) {
+        try {
+            const task = this.taskStoreService.addTasks(data);
+            return {
+                success: true,
+                message: 'Task created',
+                data: task,
+            };
+        }
+        catch (e) {
+            return {
+                success: false,
+                error: e,
+            };
+        }
+    }
 };
 AppService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [])
+    __metadata("design:paramtypes", [drone_store_service_1.DroneStoreService,
+        task_store_service_1.TaskStoreService])
 ], AppService);
 exports.AppService = AppService;
 //# sourceMappingURL=app.service.js.map
