@@ -1,5 +1,13 @@
-import { Aircraft } from "./aircraft.dto";
+// import { Aircraft } from "./aircraft.dto";
 
-export class Flightplan extends Aircraft {
-    flightplan: string;
+import { ContextDto } from "./context.dto";
+
+// export class Flightplan extends Aircraft {
+//     flightplan: string;
+// }
+
+export class Flightplan extends ContextDto {
+    id: string;
+    name: string;
+    description: string;
 }

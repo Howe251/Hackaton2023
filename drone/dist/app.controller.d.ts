@@ -9,7 +9,25 @@ export declare class AppController {
     private readonly atm;
     constructor(appService: AppService, flightPlanningService: ClientKafka, authService: ClientKafka, atm: ClientKafka);
     onModuleInit(): void;
-    setplan(message: Flightplan): boolean;
-    executeCom(message: Command): any;
-    executeAlarmCom(message: Command): any;
+    setplan(message: Flightplan): {
+        success: boolean;
+    };
+    executeCom(message: Command): {
+        success: true;
+        message: string;
+        error?: undefined;
+    } | {
+        success: boolean;
+        error: string;
+        message?: undefined;
+    };
+    executeAlarmCom(message: Command): {
+        success: boolean;
+        message: string;
+        error?: undefined;
+    } | {
+        success: boolean;
+        error: string;
+        message?: undefined;
+    };
 }

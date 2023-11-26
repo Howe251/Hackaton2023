@@ -40,7 +40,7 @@ let AppController = class AppController {
         return this.appService.executeCommand(message);
     }
     executeAlarmCom(message) {
-        return this.appService.executeCommand(message);
+        return this.appService.executeAlarmCommand(message);
     }
 };
 exports.AppController = AppController;

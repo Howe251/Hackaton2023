@@ -28,34 +28,46 @@ let AppService = class AppService {
         console.log(data);
         this.tasklist.push(data);
         console.log({ "id": data.flightplan, "accessToken": data.accessToken });
-        this.sendPlanBVS(data, data.accessToken);
+        this.sendPlanBVS(data);
         console.log('данные Отправлены в ОрВД');
-        return true;
+        return { "success": this.takeoff };
     }
-    async sendPlanBVS(data, accessToken) {
+    async sendPlanBVS(data) {
         console.log("HERE");
-        const vl = await (0, rxjs_1.firstValueFrom)(this.atm.send("atm_register_bvs", { "id": data.flightplan, "accessToken": accessToken }));
+        console.log(this.tasklist[this.tasklist.length - 1]);
+        let task = this.tasklist[this.tasklist.length - 1];
+        const vl = await (0, rxjs_1.firstValueFrom)(this.atm.send("atm_register_bvs", { id: task.id, accessToken: task.accessToken }));
         console.log(vl);
         this.takeoff = vl.success;
         this.takeoff ? console.log("Вылет разрешён") : console.log("Вылет запрещен");
     }
     executeCommand(data) {
         console.log(data);
-        return data;
+        if (this.takeoff) {
+            console.log("Получена команда");
+        }
+        if (this.takeoff) {
+            return { success: this.takeoff, message: "Команда выполнена" };
+        }
+        else {
+            return { success: this.takeoff, error: "Полёт был запрещен ОРВД. Данные недоступны" };
+        }
     }
     executeAlarmCommand(data) {
         if (this.takeoff) {
-            console.log("Экстренная команда");
-            console.log(data);
-            return data;
+            console.log("Получена экстренная команда");
+            console.log(data.command);
+            return { success: true, message: "Команда выполнена" };
         }
+        console.log({ success: false, error: "Полёт был запрещен. Команда недоступна" });
+        return { success: false, error: "Полёт был запрещен. Команда недоступна" };
     }
     sendGPS() {
         const g = this.getGPSPos();
         this.atm.emit('atm_set_info_geo', g);
     }
     sendTelemetry() {
-        const t = new telemetry_dto_1.Telemetry;
+        const t = new telemetry_dto_1.TelemetryDto;
         t.compasDeg = 100;
         t.distanceToHome = 20;
         t.position = this.getGPSPos();
@@ -64,10 +76,13 @@ let AppService = class AppService {
         this.flightPlanningService.emit('', t);
     }
     sendEndTask() {
-        this.flightPlanningService.emit('', { 'TaskEnd': true, "accessToken": "" });
+        let task = this.tasklist[this.tasklist.length - 1];
+        this.takeoff = false;
+        this.tasklist.pop();
+        this.flightPlanningService.emit('', { 'TaskEnd': true, "accessToken": task.accessToken });
     }
     getGPSPos() {
-        const g = new GPS_dto_1.GPS;
+        const g = new GPS_dto_1.GPSDto;
         g.x = Math.random() * 10;
         g.y = Math.random() * 10;
         return g;
