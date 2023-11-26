@@ -30,7 +30,7 @@ let AppService = class AppService {
         console.log({ "id": data.flightplan, "accessToken": data.accessToken });
         this.sendPlanBVS(data);
         console.log('данные Отправлены в ОрВД');
-        return { "success": this.takeoff };
+        return { success: this.takeoff };
     }
     async sendPlanBVS(data) {
         console.log("HERE");

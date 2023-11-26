@@ -29,7 +29,7 @@ let AppController = class AppController {
     onModuleInit() {
         this.authService.subscribeToResponseOf('auth_verify_token');
         this.atm.subscribeToResponseOf('atm_register_bvs');
-        this.flightPlanningService.subscribeToResponseOf('dronecom');
+        this.flightPlanningService.subscribeToResponseOf('drone_command');
         this.atm.subscribeToResponseOf('drone_command_alarm');
     }
     setplan(message) {

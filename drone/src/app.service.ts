@@ -27,7 +27,7 @@ export class AppService {
     
     this.sendPlanBVS(data);
     console.log('данные Отправлены в ОрВД');
-    return {"success": this.takeoff};
+    return {success: this.takeoff};
   }
 
   public async sendPlanBVS (data: Flightplan) {
