@@ -3,7 +3,7 @@
 ## Развертывание проекта
 
 ### Необходимые инструменты
-- Node JS
+- Node JS v 16.16
 - Docker
 - Docker Compose
 

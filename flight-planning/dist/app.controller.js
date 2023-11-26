@@ -16,17 +16,31 @@ exports.AppController = void 0;
 const common_1 = require("@nestjs/common");
 const app_service_1 = require("./app.service");
 const microservices_1 = require("@nestjs/microservices");
-const auth_interceptor_1 = require("./auth/auth.interceptor");
+const choose_drone_dto_1 = require("./dto/choose-drone.dto");
+const auth_interceptor_1 = require("./interceptors/auth/auth.interceptor");
+const logger_service_1 = require("./services/logger/logger.service");
+const task_dto_1 = require("./dto/task.dto");
 let AppController = class AppController {
-    constructor(appService, authService) {
-        this.appService = appService;
+    constructor(authService, appService, loggerService) {
         this.authService = authService;
+        this.appService = appService;
+        this.loggerService = loggerService;
     }
     onModuleInit() {
         this.authService.subscribeToResponseOf('auth_verify_token');
     }
     testCommandHandler(message, context) {
         return this.appService.testCommandHandler(message);
+    }
+    selectDrone(message) {
+        const response = this.appService.selectDrone(message);
+        this.loggerService.log('fp_select_drone', response);
+        return response;
+    }
+    createTask(message) {
+        const response = this.appService.createTask(message);
+        this.loggerService.log('fp_create-task', response);
+        return response;
     }
 };
 __decorate([
@@ -37,12 +51,27 @@ __decorate([
     __metadata("design:paramtypes", [Object, microservices_1.KafkaContext]),
     __metadata("design:returntype", void 0)
 ], AppController.prototype, "testCommandHandler", null);
+__decorate([
+    (0, microservices_1.MessagePattern)('fp_select_drone'),
+    __param(0, (0, microservices_1.Payload)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [choose_drone_dto_1.ChooseDroneDto]),
+    __metadata("design:returntype", void 0)
+], AppController.prototype, "selectDrone", null);
+__decorate([
+    (0, microservices_1.MessagePattern)('fp_create-task'),
+    __param(0, (0, microservices_1.Payload)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [task_dto_1.TaskDto]),
+    __metadata("design:returntype", void 0)
+], AppController.prototype, "createTask", null);
 AppController = __decorate([
     (0, common_1.Controller)(),
     (0, common_1.UseInterceptors)(auth_interceptor_1.AuthInterceptor),
-    __param(1, (0, common_1.Inject)('AUTH_SERVICE')),
-    __metadata("design:paramtypes", [app_service_1.AppService,
-        microservices_1.ClientKafka])
+    __param(0, (0, common_1.Inject)('AUTH_SERVICE')),
+    __metadata("design:paramtypes", [microservices_1.ClientKafka,
+        app_service_1.AppService,
+        logger_service_1.LoggerService])
 ], AppController);
 exports.AppController = AppController;
 //# sourceMappingURL=app.controller.js.map

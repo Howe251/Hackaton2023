@@ -1,8 +1,10 @@
 import { CallHandler, ExecutionContext, NestInterceptor } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { ClientKafka } from '@nestjs/microservices';
+import { LoggerService } from '../../services/logger/logger.service';
 export declare class AuthInterceptor implements NestInterceptor {
     private readonly authService;
-    constructor(authService: ClientKafka);
+    private readonly loggerService;
+    constructor(authService: ClientKafka, loggerService: LoggerService);
     intercept(context: ExecutionContext, next: CallHandler): Promise<Observable<any>>;
 }
