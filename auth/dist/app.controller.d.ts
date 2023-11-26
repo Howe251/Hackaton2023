@@ -1,11 +1,10 @@
 import { AppService } from './app.service';
-import { KafkaContext } from '@nestjs/microservices';
 import { LoginDto } from './dto/login.dto';
 import { VerifyTokenDto } from './dto/verify-token.dto';
 export declare class AppController {
     private readonly appService;
     constructor(appService: AppService);
-    login(message: LoginDto, context: KafkaContext): {
+    login(message: LoginDto): {
         success: boolean;
         accessToken: string;
         error?: undefined;
@@ -14,7 +13,7 @@ export declare class AppController {
         error: import("@nestjs/common").UnauthorizedException;
         accessToken?: undefined;
     };
-    verifyToken(message: VerifyTokenDto, context: KafkaContext): {
+    verifyToken(message: VerifyTokenDto): {
         success: boolean;
         user: any;
         error?: undefined;

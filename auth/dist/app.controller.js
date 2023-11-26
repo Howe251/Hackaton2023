@@ -22,27 +22,25 @@ let AppController = class AppController {
     constructor(appService) {
         this.appService = appService;
     }
-    login(message, context) {
+    login(message) {
         return this.appService.login(message);
     }
-    verifyToken(message, context) {
+    verifyToken(message) {
         return this.appService.verifyToken(message);
     }
 };
 __decorate([
     (0, microservices_1.MessagePattern)('auth_login'),
     __param(0, (0, microservices_1.Payload)()),
-    __param(1, (0, microservices_1.Ctx)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [login_dto_1.LoginDto, microservices_1.KafkaContext]),
+    __metadata("design:paramtypes", [login_dto_1.LoginDto]),
     __metadata("design:returntype", void 0)
 ], AppController.prototype, "login", null);
 __decorate([
     (0, microservices_1.MessagePattern)('auth_verify_token'),
     __param(0, (0, microservices_1.Payload)()),
-    __param(1, (0, microservices_1.Ctx)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [verify_token_dto_1.VerifyTokenDto, microservices_1.KafkaContext]),
+    __metadata("design:paramtypes", [verify_token_dto_1.VerifyTokenDto]),
     __metadata("design:returntype", void 0)
 ], AppController.prototype, "verifyToken", null);
 AppController = __decorate([

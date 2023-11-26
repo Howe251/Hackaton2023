@@ -2,9 +2,9 @@ import { OnModuleInit } from '@nestjs/common';
 import { AppService } from './app.service';
 import { ClientKafka, KafkaContext } from '@nestjs/microservices';
 export declare class AppController implements OnModuleInit {
-    private readonly appService;
     private readonly authService;
-    constructor(appService: AppService, authService: ClientKafka);
+    private readonly appService;
+    constructor(authService: ClientKafka, appService: AppService);
     onModuleInit(): void;
     setTaskHandler(data: any, context: KafkaContext): {
         success: boolean;

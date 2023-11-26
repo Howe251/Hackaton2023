@@ -35,6 +35,19 @@ import { TaskStoreService } from './services/task-store/task-store.service';
           },
         },
       },
+      {
+        name: 'ATM_SERVICE',
+        transport: Transport.KAFKA,
+        options: {
+          client: {
+            clientId: 'atm',
+            brokers: ['localhost:29092'],
+          },
+          consumer: {
+            groupId: 'air-traffic-manager-consumer' + Math.random(),
+          },
+        },
+      },
     ]),
   ],
   controllers: [AppController],

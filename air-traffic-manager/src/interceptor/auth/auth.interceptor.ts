@@ -7,11 +7,13 @@ import {
 } from '@nestjs/common';
 import { firstValueFrom, Observable, of } from 'rxjs';
 import { ClientKafka } from '@nestjs/microservices';
+import { LoggerService } from '../../services/logger/logger.service';
 
 @Injectable()
 export class AuthInterceptor implements NestInterceptor {
   constructor(
-    @Inject('AUTH_SERVICE') private readonly authService: ClientKafka
+    @Inject('AUTH_SERVICE') private readonly authService: ClientKafka,
+    private readonly loggerService: LoggerService,
   ) {
   }
 
@@ -20,10 +22,13 @@ export class AuthInterceptor implements NestInterceptor {
     const authResponse = await firstValueFrom(this.authService.send('auth_verify_token', message));
 
     if (!authResponse.success) {
-      return of({
+      const response = {
         success: false,
         error: new UnauthorizedException(),
-      });
+      };
+
+      this.loggerService.log('auth_interceptor', response);
+      return of(response);
     }
 
     return next.handle();

@@ -11,7 +11,7 @@ export class DroneStoreService {
     {
       id: 2,
       name: 'Drone 2',
-      owners: [2, 3]
+      owners: [1, 2, 3]
     },
     {
       id: 3,
@@ -29,31 +29,65 @@ export class DroneStoreService {
       owners: [1, 2]
     },
   ];
-  private readonly selectedDrones: number[] = [];
+  private readonly selectedDrones: { id: number, permission: string }[] = [];
 
   private findDroneById(id: number) {
     return this.drones.find(drone => drone.id === id);
+  }
+
+  private findDroneByPermission(permission: string): boolean {
+    return this.selectedDrones.some(drone => drone.permission === permission);
   }
 
   public selectDrone(id: number, ownerId: number) {
     const drone = this.findDroneById(id);
 
     if (!drone) {
-      return { success: false, error: new BadRequestException('Drone not found') };
+      throw new BadRequestException('Drone not found');
     }
 
     if (!drone.owners.includes(ownerId)) {
-      return { success: false, error: new BadRequestException('You are not the owner of this drone') };
+      throw new BadRequestException('You are not the owner of this drone');
     }
 
-    const isDroneSelected = this.selectedDrones.includes(id);
+    const isDroneSelected = this.selectedDrones.some((item) => item.id === id);
 
     if (isDroneSelected) {
-      return { success: false, error: new BadRequestException('Drone is already in use') };
+      throw new BadRequestException('Drone is already selected');
     }
 
-    this.selectedDrones.push(drone.id);
+    const permission = this.getPermission();
+    this.selectedDrones.push({
+      id: drone.id,
+      permission,
+    });
 
-    return { success: true, message: `Drone "${drone.name}" selected` };
+    return {
+      message: `Drone "${drone.name}" selected`,
+      permission,
+    };
+  }
+
+  public verifyPermission(permission: string): void {
+    const isPermissionValid = this.findDroneByPermission(permission);
+
+    if (!isPermissionValid) {
+      throw new BadRequestException('Invalid permission');
+    }
+  }
+
+  private getPermission(): string {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const length = 18;
+    let permission = '';
+    const charactersLength = characters.length;
+
+    for (let i = 0; i < length; i++) {
+      permission += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+
+    permission += Date.now().toString(36);
+
+    return permission;
   }
 }

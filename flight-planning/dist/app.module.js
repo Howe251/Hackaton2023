@@ -46,6 +46,19 @@ AppModule = __decorate([
                         },
                     },
                 },
+                {
+                    name: 'ATM_SERVICE',
+                    transport: microservices_1.Transport.KAFKA,
+                    options: {
+                        client: {
+                            clientId: 'atm',
+                            brokers: ['localhost:29092'],
+                        },
+                        consumer: {
+                            groupId: 'air-traffic-manager-consumer' + Math.random(),
+                        },
+                    },
+                },
             ]),
         ],
         controllers: [app_controller_1.AppController],

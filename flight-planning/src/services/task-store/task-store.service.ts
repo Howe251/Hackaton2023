@@ -4,10 +4,9 @@ import { TaskDto } from '../../dto/task.dto';
 
 @Injectable()
 export class TaskStoreService {
-  private currentId = 0;
   private readonly tasks: TaskModel[] = [];
 
-  public addTasks(dto: TaskDto): TaskDto {
+  public addTasks(dto: TaskDto): TaskModel {
     if (!this.validate(dto)) {
       throw new BadRequestException('Invalid task');
     }
@@ -46,7 +45,7 @@ export class TaskStoreService {
 
   private createTask(dto: TaskDto): TaskModel {
     return new TaskModel(
-      this.currentId++,
+      1, // TODO: generate id
       dto
     );
   }

@@ -1,6 +1,5 @@
 import {
   Controller,
-  Get,
   Inject,
   OnModuleInit,
   UseInterceptors,
@@ -19,12 +18,11 @@ import { AuthInterceptor } from './interceptor/auth/auth.interceptor';
 @UseInterceptors(AuthInterceptor)
 export class AppController implements OnModuleInit {
   constructor(
-    private readonly appService: AppService,
     @Inject('AUTH_SERVICE') private readonly authService: ClientKafka,
+    private readonly appService: AppService,
   ) {}
 
   public onModuleInit(): void {
-    console.log('onModuleInit');
     this.authService.subscribeToResponseOf('auth_verify_token');
   }
 

@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 
-const taskList = ['123456', '123455', '12312378', '12378367156', 'twst'];
+const taskList = [1, 2, 3, 4];
 const btnList = ['213821ghdhdhq', '12312dewj9dfw', 'test'];
 const xСoordinates = [1, 2, 3, 4, 4, 6, 6, 7, 8];
 const yCoordinates = [0, 1, 3, 4, 5, 5, 6, 6, 7, 77, 7, 4, 4];

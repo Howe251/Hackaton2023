@@ -1,15 +1,12 @@
-import { BadRequestException } from '@nestjs/common';
 export declare class DroneStoreService {
     private readonly drones;
     private readonly selectedDrones;
     private findDroneById;
+    private findDroneByPermission;
     selectDrone(id: number, ownerId: number): {
-        success: boolean;
-        error: BadRequestException;
-        message?: undefined;
-    } | {
-        success: boolean;
         message: string;
-        error?: undefined;
+        permission: string;
     };
+    verifyPermission(permission: string): void;
+    private getPermission;
 }

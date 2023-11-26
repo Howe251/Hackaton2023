@@ -19,7 +19,7 @@ let DroneStoreService = class DroneStoreService {
             {
                 id: 2,
                 name: 'Drone 2',
-                owners: [2, 3]
+                owners: [1, 2, 3]
             },
             {
                 id: 3,
@@ -42,20 +42,47 @@ let DroneStoreService = class DroneStoreService {
     findDroneById(id) {
         return this.drones.find(drone => drone.id === id);
     }
+    findDroneByPermission(permission) {
+        return this.selectedDrones.some(drone => drone.permission === permission);
+    }
     selectDrone(id, ownerId) {
         const drone = this.findDroneById(id);
         if (!drone) {
-            return { success: false, error: new common_1.BadRequestException('Drone not found') };
+            throw new common_1.BadRequestException('Drone not found');
         }
         if (!drone.owners.includes(ownerId)) {
-            return { success: false, error: new common_1.BadRequestException('You are not the owner of this drone') };
+            throw new common_1.BadRequestException('You are not the owner of this drone');
         }
-        const isDroneSelected = this.selectedDrones.includes(id);
+        const isDroneSelected = this.selectedDrones.some((item) => item.id === id);
         if (isDroneSelected) {
-            return { success: false, error: new common_1.BadRequestException('Drone is already in use') };
+            throw new common_1.BadRequestException('Drone is already selected');
         }
-        this.selectedDrones.push(drone.id);
-        return { success: true, message: `Drone "${drone.name}" selected` };
+        const permission = this.getPermission();
+        this.selectedDrones.push({
+            id: drone.id,
+            permission,
+        });
+        return {
+            message: `Drone "${drone.name}" selected`,
+            permission,
+        };
+    }
+    verifyPermission(permission) {
+        const isPermissionValid = this.findDroneByPermission(permission);
+        if (!isPermissionValid) {
+            throw new common_1.BadRequestException('Invalid permission');
+        }
+    }
+    getPermission() {
+        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        const length = 18;
+        let permission = '';
+        const charactersLength = characters.length;
+        for (let i = 0; i < length; i++) {
+            permission += characters.charAt(Math.floor(Math.random() * charactersLength));
+        }
+        permission += Date.now().toString(36);
+        return permission;
     }
 };
 DroneStoreService = __decorate([

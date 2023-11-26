@@ -6,9 +6,10 @@ import { LoggerService } from './services/logger/logger.service';
 import { TaskDto } from './dto/task.dto';
 export declare class AppController implements OnModuleInit {
     private readonly authService;
+    private readonly atmService;
     private readonly appService;
     private readonly loggerService;
-    constructor(authService: ClientKafka, appService: AppService, loggerService: LoggerService);
+    constructor(authService: ClientKafka, atmService: ClientKafka, appService: AppService, loggerService: LoggerService);
     onModuleInit(): void;
     testCommandHandler(message: any, context: KafkaContext): {
         success: boolean;
@@ -16,17 +17,10 @@ export declare class AppController implements OnModuleInit {
     };
     selectDrone(message: ChooseDroneDto): {
         success: boolean;
-        error: import("@nestjs/common").BadRequestException;
-        message?: undefined;
-    } | {
-        success: boolean;
         message: string;
-        error?: undefined;
-    };
-    createTask(message: TaskDto): {
-        success: boolean;
-        message: string;
-        data: TaskDto;
+        data: {
+            permission: string;
+        };
         error?: undefined;
     } | {
         success: boolean;
@@ -34,4 +28,15 @@ export declare class AppController implements OnModuleInit {
         message?: undefined;
         data?: undefined;
     };
+    createTask(message: TaskDto): Promise<{
+        success: boolean;
+        message: string;
+        data: import("./models/task.model").TaskModel;
+        error?: undefined;
+    } | {
+        success: boolean;
+        error: any;
+        message?: undefined;
+        data?: undefined;
+    }>;
 }

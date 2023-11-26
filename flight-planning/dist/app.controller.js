@@ -21,13 +21,15 @@ const auth_interceptor_1 = require("./interceptors/auth/auth.interceptor");
 const logger_service_1 = require("./services/logger/logger.service");
 const task_dto_1 = require("./dto/task.dto");
 let AppController = class AppController {
-    constructor(authService, appService, loggerService) {
+    constructor(authService, atmService, appService, loggerService) {
         this.authService = authService;
+        this.atmService = atmService;
         this.appService = appService;
         this.loggerService = loggerService;
     }
     onModuleInit() {
         this.authService.subscribeToResponseOf('auth_verify_token');
+        this.atmService.subscribeToResponseOf('atm_set_task');
     }
     testCommandHandler(message, context) {
         return this.appService.testCommandHandler(message);
@@ -37,8 +39,8 @@ let AppController = class AppController {
         this.loggerService.log('fp_select_drone', response);
         return response;
     }
-    createTask(message) {
-        const response = this.appService.createTask(message);
+    async createTask(message) {
+        const response = await this.appService.createTask(message);
         this.loggerService.log('fp_create-task', response);
         return response;
     }
@@ -63,13 +65,15 @@ __decorate([
     __param(0, (0, microservices_1.Payload)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [task_dto_1.TaskDto]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:returntype", Promise)
 ], AppController.prototype, "createTask", null);
 AppController = __decorate([
     (0, common_1.Controller)(),
     (0, common_1.UseInterceptors)(auth_interceptor_1.AuthInterceptor),
     __param(0, (0, common_1.Inject)('AUTH_SERVICE')),
+    __param(1, (0, common_1.Inject)('ATM_SERVICE')),
     __metadata("design:paramtypes", [microservices_1.ClientKafka,
+        microservices_1.ClientKafka,
         app_service_1.AppService,
         logger_service_1.LoggerService])
 ], AppController);

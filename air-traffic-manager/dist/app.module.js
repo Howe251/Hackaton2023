@@ -11,6 +11,7 @@ const common_1 = require("@nestjs/common");
 const app_controller_1 = require("./app.controller");
 const app_service_1 = require("./app.service");
 const microservices_1 = require("@nestjs/microservices");
+const logger_service_1 = require("./services/logger/logger.service");
 let AppModule = class AppModule {
 };
 AppModule = __decorate([
@@ -31,6 +32,19 @@ AppModule = __decorate([
                     },
                 },
                 {
+                    name: 'LOGGER_SERVICE',
+                    transport: microservices_1.Transport.KAFKA,
+                    options: {
+                        client: {
+                            clientId: 'logger',
+                            brokers: ['localhost:29092'],
+                        },
+                        consumer: {
+                            groupId: 'logger-consumer' + Math.random(),
+                        },
+                    },
+                },
+                {
                     name: 'AUTH_SERVICE',
                     transport: microservices_1.Transport.KAFKA,
                     options: {
@@ -46,7 +60,7 @@ AppModule = __decorate([
             ]),
         ],
         controllers: [app_controller_1.AppController],
-        providers: [app_service_1.AppService],
+        providers: [app_service_1.AppService, logger_service_1.LoggerService],
     })
 ], AppModule);
 exports.AppModule = AppModule;

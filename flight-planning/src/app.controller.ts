@@ -11,12 +11,14 @@ import { TaskDto } from './dto/task.dto';
 export class AppController implements OnModuleInit {
   constructor(
     @Inject('AUTH_SERVICE') private readonly authService: ClientKafka,
+    @Inject('ATM_SERVICE') private readonly atmService: ClientKafka,
     private readonly appService: AppService,
     private readonly loggerService: LoggerService,
   ) {}
 
   public onModuleInit(): void {
     this.authService.subscribeToResponseOf('auth_verify_token');
+    this.atmService.subscribeToResponseOf('atm_set_task');
   }
 
   @MessagePattern('test_command')
@@ -32,8 +34,8 @@ export class AppController implements OnModuleInit {
   }
 
   @MessagePattern('fp_create-task')
-  createTask(@Payload() message: TaskDto) {
-    const response = this.appService.createTask(message);
+  async createTask(@Payload() message: TaskDto) {
+    const response = await this.appService.createTask(message);
     this.loggerService.log('fp_create-task', response);
     return response;
   }

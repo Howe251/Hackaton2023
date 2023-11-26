@@ -11,7 +11,6 @@ const common_1 = require("@nestjs/common");
 const task_model_1 = require("../../models/task.model");
 let TaskStoreService = class TaskStoreService {
     constructor() {
-        this.currentId = 0;
         this.tasks = [];
     }
     addTasks(dto) {
@@ -42,7 +41,7 @@ let TaskStoreService = class TaskStoreService {
         return false;
     }
     createTask(dto) {
-        return new task_model_1.TaskModel(this.currentId++, dto);
+        return new task_model_1.TaskModel(1, dto);
     }
     getTaskById(id) {
         return this.tasks.find(task => task.id === id);

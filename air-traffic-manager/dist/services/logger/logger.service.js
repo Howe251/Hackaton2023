@@ -12,35 +12,22 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.AuthInterceptor = void 0;
+exports.LoggerService = void 0;
 const common_1 = require("@nestjs/common");
-const rxjs_1 = require("rxjs");
 const microservices_1 = require("@nestjs/microservices");
-const logger_service_1 = require("../../services/logger/logger.service");
-let AuthInterceptor = class AuthInterceptor {
-    constructor(authService, loggerService) {
-        this.authService = authService;
+let LoggerService = class LoggerService {
+    constructor(loggerService) {
         this.loggerService = loggerService;
+        this.producer = 'AIR_TRAFFIC_MANAGER';
     }
-    async intercept(context, next) {
-        const message = context.switchToRpc().getData();
-        const authResponse = await (0, rxjs_1.firstValueFrom)(this.authService.send('auth_verify_token', message));
-        if (!authResponse.success) {
-            const response = {
-                success: false,
-                error: new common_1.UnauthorizedException(),
-            };
-            this.loggerService.log('auth_interceptor', response);
-            return (0, rxjs_1.of)(response);
-        }
-        return next.handle();
+    log(topic, message) {
+        this.loggerService.emit('logger_log', { topic, message, producer: this.producer });
     }
 };
-AuthInterceptor = __decorate([
+LoggerService = __decorate([
     (0, common_1.Injectable)(),
-    __param(0, (0, common_1.Inject)('AUTH_SERVICE')),
-    __metadata("design:paramtypes", [microservices_1.ClientKafka,
-        logger_service_1.LoggerService])
-], AuthInterceptor);
-exports.AuthInterceptor = AuthInterceptor;
-//# sourceMappingURL=auth.interceptor.js.map
+    __param(0, (0, common_1.Inject)('LOGGER_SERVICE')),
+    __metadata("design:paramtypes", [microservices_1.ClientKafka])
+], LoggerService);
+exports.LoggerService = LoggerService;
+//# sourceMappingURL=logger.service.js.map
